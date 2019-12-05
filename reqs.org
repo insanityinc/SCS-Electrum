@@ -1,0 +1,60 @@
+#+STARTUP: showeverything
+SPEED CONTROL SYSTEM
+email prof: nfmmacedo@di.uminho.pt
+requirements pdf: https://abz2020.uni-ulm.de/resources/files/casestudyABZ2020v1.11.pdf
+
+* User functions
+
+** Cruise Control
+   - vehicle automatically maintains a set speed
+   - driver is in charge of maintaining safety distance
+
+** Adaptive Cruise Control
+   - vehicle maintains distance to the preceding vehicle including braking until a full standstill and starting from standstill
+
+** Distance Warning
+   - vehicle warns driver VISUALLY (AND/OR) ACOUSTICALLY if vehicle is closer to the car ahead than allowed by the safety distance
+
+** Emergency Brake Assist
+   - vehicle decelerates in critical situations to a full standstill
+
+** Speed Limit
+   - vehicle does not exceed a set speed
+
+** Sign Recognition
+   - vehicle sets the speed limit automatically according to the recognized signs
+
+** Traffic Jam Following
+   - vehicle accelerates from a standstill when the preceding vehicle departs
+
+
+* User Interface
+
+** Cruise Control Lever
+   - cruise control
+   - speed limiter
+   - rotary switch (to control safety distance)
+*** DEFAULT POSITION is in NEUTRAL when not touched by user -> signaled via SCSLever
+*** CHECK POSSIBLE MOVEMENTS
+
+
+* Sensors
+  - keyState   {NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition}
+  - engineOn   {True, False}
+  - brakePedal {0 -> no deflection, 225 -> max 45º deflection}
+  - radar system -> state: rangeRadarState ; obstacle detection: rangeRadarSensor
+
+* Actuators
+  - current speed of vehicle controlled via setVehicleSpeed
+  - brake controlled (desacelerate or emergency brake) via brakePressure
+  - acoustic or visual warning in dangerous situation via acousticWarningOn and visualWarningOn
+
+* Software Functions
+** TODO Setting and Modifying desired speed
+** TODO Cruise Control
+** TODO Adaptive Cruise Control
+** TODO Distance Warning
+** TODO Emergency Brake Assistant
+** TODO Speed Limit
+** TODO Traffic Sign Detection
+** TODO Fault Handling and General Properties

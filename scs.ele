@@ -1,0 +1,39 @@
+sig vehicle {
+
+	/* cruise control lever */
+	cc_lever : one SCSLever,
+
+	/* sensors */
+	key_state : one keyState,
+	engine_on : one engineOn,
+	rr_state : one rangeRadarState,
+	rr_sensor : one rangeRadarSensor,
+		
+	/* actuators */
+	set_vehicle_speed : one setVehicleSpeed,
+	brake_pressure : one brakePressure,
+	acoustic_warning_on : one acousticWarningOn,
+	visual_warning_on : one visualWarningOn
+}
+
+enum SCSLever { StNeutral, StOne, StTwo, StThree, StFour, StFive, StSix }
+enum keyState { NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
+enum engineOn { TrueEngineOn, FalseEngineOn }
+enum rangeRadarState { Ready, Dirty, NotReady }
+enum rangeRadarSensor { Clear, Obstacle, Unknown }
+enum setVehicleSpeed { Stopped, Moderate, Normal, Fast }
+enum brakePressure { Zero, Quarter, Half, Full }
+enum acousticWarningOn { TrueAcoustic, FalseAcoustic }
+enum visualWarningOn { TrueVisual, FalseVisual }
+
+fact init {
+	all v : vehicle | v.cc_lever = StNeutral and v.key_state = NoKeyInserted and v.engine_on = FalseEngineOn
+	all v : vehicle | v.rr_state = Ready and v.rr_sensor = Clear and v.set_vehicle_speed = Stopped
+	all v : vehicle | v.brake_pressure = Zero and v.acoustic_warning_on = FalseAcoustic and v.visual_warning_on = FalseVisual
+}
+
+fact {
+	eventually (all v : vehicle | v.engine_on = TrueEngineOn)
+}
+
+run { } for 1 but exactly 1 vehicle

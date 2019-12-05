@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Clear"/>
+   <type name="Dirty"/>
+   <type name="FalseAcoustic"/>
+   <type name="FalseEngineOn"/>
+   <type name="FalseVisual"/>
+   <type name="Fast"/>
+   <type name="Full"/>
+   <type name="Half"/>
+   <type name="Int"/>
+   <type name="KeyInIgnitionOnPosition"/>
+   <type name="KeyInserted"/>
+   <type name="Moderate"/>
+   <type name="NoKeyInserted"/>
+   <type name="Normal"/>
+   <type name="NotReady"/>
+   <type name="Obstacle"/>
+   <type name="Quarter"/>
+   <type name="Ready"/>
+   <type name="StFive"/>
+   <type name="StFour"/>
+   <type name="StNeutral"/>
+   <type name="StOne"/>
+   <type name="Stopped"/>
+   <type name="StSix"/>
+   <type name="StThree"/>
+   <type name="StTwo"/>
+   <type name="TrueAcoustic"/>
+   <type name="TrueEngineOn"/>
+   <type name="TrueVisual"/>
+   <type name="univ"/>
+   <type name="Unknown"/>
+   <type name="Zero"/>
+   <type name="open$10/Ord"/>
+   <type name="open$3/Ord"/>
+   <type name="open$4/Ord"/>
+   <type name="open$5/Ord"/>
+   <type name="open$6/Ord"/>
+   <type name="open$7/Ord"/>
+   <type name="open$8/Ord"/>
+   <type name="open$9/Ord"/>
+   <type name="ordering/Ord"/>
+   <type name="seq/Int"/>
+</node>
+
+<node hideunconnected="no" shape="Trapezoid" color="Blue">
+   <type name="vehicle"/>
+</node>
+
+<node hideunconnected="yes">
+   <type name="acousticWarningOn"/>
+   <type name="brakePressure"/>
+   <type name="engineOn"/>
+   <type name="keyState"/>
+   <type name="rangeRadarSensor"/>
+   <type name="rangeRadarState"/>
+   <type name="SCSLever"/>
+   <type name="setVehicleSpeed"/>
+   <type name="String"/>
+   <type name="visualWarningOn"/>
+</node>
+
+<edge visible="no" attribute="yes">
+   <relation name="acoustic_warning_on"> <type name="vehicle"/> <type name="acousticWarningOn"/> </relation>
+   <relation name="brake_pressure"> <type name="vehicle"/> <type name="brakePressure"/> </relation>
+   <relation name="cc_lever"> <type name="vehicle"/> <type name="SCSLever"/> </relation>
+   <relation name="engine_on"> <type name="vehicle"/> <type name="engineOn"/> </relation>
+   <relation name="key_state"> <type name="vehicle"/> <type name="keyState"/> </relation>
+   <relation name="rr_sensor"> <type name="vehicle"/> <type name="rangeRadarSensor"/> </relation>
+   <relation name="rr_state"> <type name="vehicle"/> <type name="rangeRadarState"/> </relation>
+   <relation name="set_vehicle_speed"> <type name="vehicle"/> <type name="setVehicleSpeed"/> </relation>
+   <relation name="visual_warning_on"> <type name="vehicle"/> <type name="visualWarningOn"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
