@@ -1,24 +1,24 @@
-sig vehicle {
+sig Vehicle {
 
 	/* cruise control lever */
-	cc_lever : one SCSLever,
+	var cc_lever : one SCSLever,
 
 	/* sensors */
-	key_state : one keyState,
-	engine_on : one engineOn,
-	rr_state : one rangeRadarState,
-	rr_sensor : one rangeRadarSensor,
+	var key_state : one keyState,
+	var engine : one engineOn,
+	var rr_state : one rangeRadarState,
+	var rr_sensor : one rangeRadarSensor,
 		
 	/* actuators */
-	set_vehicle_speed : one setVehicleSpeed,
-	brake_pressure : one brakePressure,
-	acoustic_warning_on : one acousticWarningOn,
-	visual_warning_on : one visualWarningOn
+	var vehicle_speed : one setVehicleSpeed,
+	var brake_pressure : one brakePressure,
+	var acoustic_warning : one acousticWarningOn,
+	var visual_warning : one visualWarningOn
 }
 
-enum SCSLever { StNeutral, StOne, StTwo, StThree, StFour, StFive, StSix }
+enum SCSLever { Neutral, One, Two, Three, Four, Five, Six }
 enum keyState { NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
-enum engineOn { TrueEngineOn, FalseEngineOn }
+enum engineOn { On, Off }
 enum rangeRadarState { Ready, Dirty, NotReady }
 enum rangeRadarSensor { Clear, Obstacle, Unknown }
 enum setVehicleSpeed { Stopped, Moderate, Normal, Fast }
@@ -26,14 +26,19 @@ enum brakePressure { Zero, Quarter, Half, Full }
 enum acousticWarningOn { TrueAcoustic, FalseAcoustic }
 enum visualWarningOn { TrueVisual, FalseVisual }
 
-fact init {
-	all v : vehicle | v.cc_lever = StNeutral and v.key_state = NoKeyInserted and v.engine_on = FalseEngineOn
-	all v : vehicle | v.rr_state = Ready and v.rr_sensor = Clear and v.set_vehicle_speed = Stopped
-	all v : vehicle | v.brake_pressure = Zero and v.acoustic_warning_on = FalseAcoustic and v.visual_warning_on = FalseVisual
+pred init[v : Vehicle]{
+	v.cc_lever = Neutral and v.key_state = NoKeyInserted and v.engine = Off
+	v.rr_state = Ready and v.rr_sensor = Clear and v.vehicle_speed = Stopped
+	v.brake_pressure = Zero and v.acoustic_warning = FalseAcoustic and v.visual_warning = FalseVisual
+}
+
+pred vehicle_moving {
+	
 }
 
 fact {
-	eventually (all v : vehicle | v.engine_on = TrueEngineOn)
+	all v : Vehicle | init[v]
+	eventually (all v : Vehicle | v.engine = On)
 }
 
-run { } for 1 but exactly 1 vehicle
+run { } for 1 but exactly 1 Vehicle

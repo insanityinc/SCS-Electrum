@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view edgetheme="Martha" fontsize="16">
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Clear"/>
+   <type name="Dirty"/>
+   <type name="FalseAcoustic"/>
+   <type name="FalseVisual"/>
+   <type name="Fast"/>
+   <type name="Five"/>
+   <type name="Four"/>
+   <type name="Full"/>
+   <type name="Half"/>
+   <type name="Int"/>
+   <type name="KeyInIgnitionOnPosition"/>
+   <type name="KeyInserted"/>
+   <type name="Moderate"/>
+   <type name="Neutral"/>
+   <type name="NoKeyInserted"/>
+   <type name="Normal"/>
+   <type name="NotReady"/>
+   <type name="Obstacle"/>
+   <type name="Off"/>
+   <type name="On"/>
+   <type name="One"/>
+   <type name="Quarter"/>
+   <type name="Ready"/>
+   <type name="Six"/>
+   <type name="Stopped"/>
+   <type name="Three"/>
+   <type name="TrueAcoustic"/>
+   <type name="TrueVisual"/>
+   <type name="Two"/>
+   <type name="univ"/>
+   <type name="Unknown"/>
+   <type name="Zero"/>
+   <type name="open$10/Ord"/>
+   <type name="open$3/Ord"/>
+   <type name="open$4/Ord"/>
+   <type name="open$5/Ord"/>
+   <type name="open$6/Ord"/>
+   <type name="open$7/Ord"/>
+   <type name="open$8/Ord"/>
+   <type name="open$9/Ord"/>
+   <type name="ordering/Ord"/>
+   <type name="seq/Int"/>
+</node>
+
+<node hideunconnected="yes">
+   <type name="acousticWarningOn"/>
+   <type name="brakePressure"/>
+   <type name="engineOn"/>
+   <type name="keyState"/>
+   <type name="SCSLever"/>
+   <type name="setVehicleSpeed"/>
+   <type name="String"/>
+   <type name="visualWarningOn"/>
+</node>
+
+<node hideunconnected="yes" color="Gray">
+   <type name="rangeRadarSensor"/>
+   <type name="rangeRadarState"/>
+</node>
+
+<node shape="Trapezoid" color="Blue">
+   <type name="Vehicle"/>
+</node>
+
+<edge attribute="no">
+   <relation name="acoustic_warning"> <type name="Vehicle"/> <type name="acousticWarningOn"/> </relation>
+</edge>
+
+<edge visible="no" attribute="yes">
+   <relation name="brake_pressure"> <type name="Vehicle"/> <type name="brakePressure"/> </relation>
+   <relation name="key_state"> <type name="Vehicle"/> <type name="keyState"/> </relation>
+</edge>
+
+<edge visible="yes" attribute="no">
+   <relation name="cc_lever"> <type name="Vehicle"/> <type name="SCSLever"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
