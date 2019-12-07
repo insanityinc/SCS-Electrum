@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <alloy>
 
-<view edgetheme="Martha" fontsize="16">
+<view edgetheme="Martha" fontsize="14">
 
 <defaultnode/>
 
@@ -20,7 +20,6 @@
    <type name="Int"/>
    <type name="KeyInIgnitionOnPosition"/>
    <type name="KeyInserted"/>
-   <type name="Moderate"/>
    <type name="Neutral"/>
    <type name="NoKeyInserted"/>
    <type name="Normal"/>
@@ -32,6 +31,7 @@
    <type name="Quarter"/>
    <type name="Ready"/>
    <type name="Six"/>
+   <type name="Slow"/>
    <type name="Stopped"/>
    <type name="Three"/>
    <type name="TrueAcoustic"/>
@@ -78,7 +78,9 @@
 
 <edge visible="no" attribute="yes">
    <relation name="brake_pressure"> <type name="Vehicle"/> <type name="brakePressure"/> </relation>
+   <relation name="engine"> <type name="Vehicle"/> <type name="engineOn"/> </relation>
    <relation name="key_state"> <type name="Vehicle"/> <type name="keyState"/> </relation>
+   <relation name="speed"> <type name="Vehicle"/> <type name="setVehicleSpeed"/> </relation>
 </edge>
 
 <edge visible="yes" attribute="no">

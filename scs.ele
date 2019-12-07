@@ -1,44 +1,56 @@
+
 sig Vehicle {
 
 	/* cruise control lever */
-	var cc_lever : one SCSLever,
+	var cc_lever :				one SCSLever,
 
 	/* sensors */
-	var key_state : one keyState,
-	var engine : one engineOn,
-	var rr_state : one rangeRadarState,
-	var rr_sensor : one rangeRadarSensor,
+	var key_state :				one keyState,
+	var engine :				one engineOn,
+	var rr_state :				one rangeRadarState,
+	var rr_sensor :				one rangeRadarSensor,
 		
 	/* actuators */
-	var vehicle_speed : one setVehicleSpeed,
-	var brake_pressure : one brakePressure,
-	var acoustic_warning : one acousticWarningOn,
-	var visual_warning : one visualWarningOn
+	var speed :				one setVehicleSpeed,
+	var brake_pressure :		one brakePressure,
+	var acoustic_warning :	one acousticWarningOn,
+	var visual_warning :		one visualWarningOn
 }
 
-enum SCSLever { Neutral, One, Two, Three, Four, Five, Six }
-enum keyState { NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
-enum engineOn { On, Off }
-enum rangeRadarState { Ready, Dirty, NotReady }
-enum rangeRadarSensor { Clear, Obstacle, Unknown }
-enum setVehicleSpeed { Stopped, Moderate, Normal, Fast }
-enum brakePressure { Zero, Quarter, Half, Full }
-enum acousticWarningOn { TrueAcoustic, FalseAcoustic }
-enum visualWarningOn { TrueVisual, FalseVisual }
+/* sets of model */
+enum SCSLever				{ Neutral, One, Two, Three, Four, Five, Six }
+enum keyState				{ NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
+enum engineOn				{ On, Off }
+enum rangeRadarState		{ Ready, Dirty, NotReady }
+enum rangeRadarSensor		{ Clear, Obstacle, Unknown }
+enum setVehicleSpeed		{ Stopped, Slow, Normal, Fast }
+enum brakePressure			{ Zero, Quarter, Half, Full }
+enum acousticWarningOn	{ AcousticOn, AcousticOff }
+enum visualWarningOn		{ VisualOn, VisualOff }
 
-pred init[v : Vehicle]{
-	v.cc_lever = Neutral and v.key_state = NoKeyInserted and v.engine = Off
-	v.rr_state = Ready and v.rr_sensor = Clear and v.vehicle_speed = Stopped
-	v.brake_pressure = Zero and v.acoustic_warning = FalseAcoustic and v.visual_warning = FalseVisual
+/* model initialization */
+pred init [ v : Vehicle ] {
+	v.cc_lever = Neutral		and v.key_state = NoKeyInserted			and v.engine = Off
+	v.rr_state = Ready			and v.rr_sensor = Clear					and v.speed = Stopped
+	v.brake_pressure = Zero	and v.acoustic_warning = AcousticOff	and v.visual_warning = VisualOff
 }
 
-pred vehicle_moving {
-	
+pred vehicle_start_moving [ v : Vehicle ] {
+	/* key_state has an order */
+	always ( v.key_state = NoKeyInserted implies v.key_state' = KeyInserted )
+	always ( v.key_state = KeyInserted	  implies v.key_state' = KeyInIgnitionOnPosition )
+	/* engine On only in KeyInIgnitionOnPosition */
+	always ( ( v.key_state = NoKeyInserted or v.key_state = KeyInserted)	implies v.engine = Off )
+	always ( v.key_state = KeyInIgnitionOnPosition							implies v.engine = On )
+	/* speed has an order */
+	always ( v.speed = Stopped	implies v.speed' = Slow )
+	always ( v.speed = Slow		implies v.speed' = Normal )
+	always ( v.speed = Normal	implies v.speed' = Fast )	
 }
 
 fact {
-	all v : Vehicle | init[v]
-	eventually (all v : Vehicle | v.engine = On)
+	all v : Vehicle | init [v]
+	all v : Vehicle | vehicle_start_moving [v]
 }
 
 run { } for 1 but exactly 1 Vehicle
