@@ -1,56 +1,81 @@
-
 sig Vehicle {
-
-	/* cruise control lever */
+	-- cruise control lever
 	var cc_lever :				one SCSLever,
-
-	/* sensors */
-	var key_state :				one keyState,
-	var engine :				one engineOn,
-	var rr_state :				one rangeRadarState,
-	var rr_sensor :				one rangeRadarSensor,
-		
-	/* actuators */
-	var speed :				one setVehicleSpeed,
-	var brake_pressure :		one brakePressure,
-	var acoustic_warning :	one acousticWarningOn,
-	var visual_warning :		one visualWarningOn
+	-- sensors
+	var key_state :				one KeyState,
+	var engine :				one Engine,
+	var rr_state :				one RRState,
+	var rr_sensor :				one RRSensor,
+	-- actuators
+	var speed :				one Speed,
+	var brake_pressure :		one BrakePressure,
+	var acoustic_warning :	one AcousticWarning,
+	var visual_warning :		one VisualWarning
 }
 
-/* sets of model */
 enum SCSLever				{ Neutral, One, Two, Three, Four, Five, Six }
-enum keyState				{ NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
-enum engineOn				{ On, Off }
-enum rangeRadarState		{ Ready, Dirty, NotReady }
-enum rangeRadarSensor		{ Clear, Obstacle, Unknown }
-enum setVehicleSpeed		{ Stopped, Slow, Normal, Fast }
-enum brakePressure			{ Zero, Quarter, Half, Full }
-enum acousticWarningOn	{ AcousticOn, AcousticOff }
-enum visualWarningOn		{ VisualOn, VisualOff }
+enum KeyState				{ NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
+enum Engine					{ On, Off }
+enum RRState					{ Ready, Dirty, NotReady }
+enum RRSensor				{ Clear, Obstacle, Unknown }
+enum Speed					{ Stopped, Slow, Normal, Fast }
+enum BrakePressure			{ Zero, Quarter, Half, Full }
+enum AcousticWarning		{ AcousticOn, AcousticOff }
+enum VisualWarning			{ VisualOn, VisualOff }
 
-/* model initialization */
+-- initialization
 pred init [ v : Vehicle ] {
-	v.cc_lever = Neutral		and v.key_state = NoKeyInserted			and v.engine = Off
-	v.rr_state = Ready			and v.rr_sensor = Clear					and v.speed = Stopped
-	v.brake_pressure = Zero	and v.acoustic_warning = AcousticOff	and v.visual_warning = VisualOff
+	v.cc_lever = Neutral
+	v.key_state = NoKeyInserted
+	v.engine = Off
+	v.rr_state = Ready
+	v.rr_sensor = Clear
+	v.speed = Stopped
+	v.brake_pressure = Zero
+	v.acoustic_warning = AcousticOff
+	v.visual_warning = VisualOff
 }
 
-pred vehicle_start_moving [ v : Vehicle ] {
-	/* key_state has an order */
-	always ( v.key_state = NoKeyInserted implies v.key_state' = KeyInserted )
-	always ( v.key_state = KeyInserted	  implies v.key_state' = KeyInIgnitionOnPosition )
-	/* engine On only in KeyInIgnitionOnPosition */
-	always ( ( v.key_state = NoKeyInserted or v.key_state = KeyInserted)	implies v.engine = Off )
-	always ( v.key_state = KeyInIgnitionOnPosition							implies v.engine = On )
-	/* speed has an order */
-	always ( v.speed = Stopped	implies v.speed' = Slow )
-	always ( v.speed = Slow		implies v.speed' = Normal )
-	always ( v.speed = Normal	implies v.speed' = Fast )	
+pred insert_key [ v : Vehicle ] {
+	-- pre
+	v.key_state = NoKeyInserted
+	-- pos
+	v.key_state' = KeyInserted
+	-- frame
+	v.engine' = v.engine and v.speed' = v.speed and v.cc_lever' = v.cc_lever
 }
 
-fact {
+pred turn_engine_on [ v : Vehicle ] {
+	-- pre
+	v.key_state = KeyInserted
+	v.engine = Off
+	-- pos
+	v.key_state' = KeyInIgnitionOnPosition
+	v.engine' = On
+	-- frame
+	v.cc_lever' = v.cc_lever and v.speed' = v.speed 
+}
+
+-- do nothing
+pred skip {
+	cc_lever' = cc_lever
+	key_state' = key_state
+	engine' = engine
+	rr_state' = rr_state
+	rr_sensor' = rr_sensor
+	speed' = speed
+	brake_pressure' = brake_pressure
+	acoustic_warning' = acoustic_warning
+	visual_warning' = visual_warning
+}
+
+fact init {
 	all v : Vehicle | init [v]
-	all v : Vehicle | vehicle_start_moving [v]
 }
 
-run { } for 1 but exactly 1 Vehicle
+fact transitions {
+	always ( all v : Vehicle | insert_key [ v ] or turn_engine_on [ v ] or skip )
+	eventually Vehicle.engine = On
+}
+
+run {  } for 1 but exactly 1 Vehicle

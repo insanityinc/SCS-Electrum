@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
 <alloy>
 
-<view edgetheme="Martha" fontsize="14">
+<view fontsize="16">
 
 <defaultnode/>
 
 <defaultedge/>
 
 <node>
+   <type name="AcousticOff"/>
+   <type name="AcousticOn"/>
+   <type name="AcousticWarning"/>
+   <type name="BrakePressure"/>
    <type name="Clear"/>
    <type name="Dirty"/>
-   <type name="FalseAcoustic"/>
-   <type name="FalseVisual"/>
+   <type name="Engine"/>
    <type name="Fast"/>
    <type name="Five"/>
    <type name="Four"/>
@@ -20,6 +23,7 @@
    <type name="Int"/>
    <type name="KeyInIgnitionOnPosition"/>
    <type name="KeyInserted"/>
+   <type name="KeyState"/>
    <type name="Neutral"/>
    <type name="NoKeyInserted"/>
    <type name="Normal"/>
@@ -30,15 +34,20 @@
    <type name="One"/>
    <type name="Quarter"/>
    <type name="Ready"/>
+   <type name="RRSensor"/>
+   <type name="RRState"/>
+   <type name="SCSLever"/>
    <type name="Six"/>
    <type name="Slow"/>
+   <type name="Speed"/>
    <type name="Stopped"/>
+   <type name="String"/>
    <type name="Three"/>
-   <type name="TrueAcoustic"/>
-   <type name="TrueVisual"/>
    <type name="Two"/>
-   <type name="univ"/>
    <type name="Unknown"/>
+   <type name="VisualOff"/>
+   <type name="VisualOn"/>
+   <type name="VisualWarning"/>
    <type name="Zero"/>
    <type name="open$10/Ord"/>
    <type name="open$3/Ord"/>
@@ -53,38 +62,17 @@
 </node>
 
 <node hideunconnected="yes">
-   <type name="acousticWarningOn"/>
-   <type name="brakePressure"/>
-   <type name="engineOn"/>
-   <type name="keyState"/>
-   <type name="SCSLever"/>
-   <type name="setVehicleSpeed"/>
-   <type name="String"/>
-   <type name="visualWarningOn"/>
-</node>
-
-<node hideunconnected="yes" color="Gray">
-   <type name="rangeRadarSensor"/>
-   <type name="rangeRadarState"/>
+   <type name="univ"/>
 </node>
 
 <node shape="Trapezoid" color="Blue">
    <type name="Vehicle"/>
 </node>
 
-<edge attribute="no">
-   <relation name="acoustic_warning"> <type name="Vehicle"/> <type name="acousticWarningOn"/> </relation>
-</edge>
-
 <edge visible="no" attribute="yes">
-   <relation name="brake_pressure"> <type name="Vehicle"/> <type name="brakePressure"/> </relation>
-   <relation name="engine"> <type name="Vehicle"/> <type name="engineOn"/> </relation>
-   <relation name="key_state"> <type name="Vehicle"/> <type name="keyState"/> </relation>
-   <relation name="speed"> <type name="Vehicle"/> <type name="setVehicleSpeed"/> </relation>
-</edge>
-
-<edge visible="yes" attribute="no">
-   <relation name="cc_lever"> <type name="Vehicle"/> <type name="SCSLever"/> </relation>
+   <relation name="engine"> <type name="Vehicle"/> <type name="Engine"/> </relation>
+   <relation name="key_state"> <type name="Vehicle"/> <type name="KeyState"/> </relation>
+   <relation name="speed"> <type name="Vehicle"/> <type name="Speed"/> </relation>
 </edge>
 
 </view>
