@@ -147,7 +147,9 @@ fact init {
 }
 
 fact transitions {
-	always ( all v : Vehicle | insert_key [ v ] or turn_engine_on [ v ] or skip )
+	always ( all v : Vehicle | insert_key [ v ] or turn_engine_on [ v ] or
+							   speed_change_slow [ v ] or speed_change_normal [ v ] or speed_change_fast [ v ] or
+							   skip )
 	eventually Vehicle.engine = On
 }
 
