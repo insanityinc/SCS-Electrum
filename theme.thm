@@ -10,8 +10,6 @@
 <node>
    <type name="AcousticOff"/>
    <type name="AcousticOn"/>
-   <type name="AcousticWarning"/>
-   <type name="BrakePressure"/>
    <type name="Clear"/>
    <type name="Dirty"/>
    <type name="Engine"/>
@@ -34,9 +32,6 @@
    <type name="One"/>
    <type name="Quarter"/>
    <type name="Ready"/>
-   <type name="RRSensor"/>
-   <type name="RRState"/>
-   <type name="SCSLever"/>
    <type name="Six"/>
    <type name="Slow"/>
    <type name="Speed"/>
@@ -47,7 +42,6 @@
    <type name="Unknown"/>
    <type name="VisualOff"/>
    <type name="VisualOn"/>
-   <type name="VisualWarning"/>
    <type name="Zero"/>
    <type name="open$10/Ord"/>
    <type name="open$3/Ord"/>
@@ -59,6 +53,32 @@
    <type name="open$9/Ord"/>
    <type name="ordering/Ord"/>
    <type name="seq/Int"/>
+</node>
+
+<node color="Black">
+   <type name="AcousticOff" />
+</node>
+
+<node color="Red">
+   <type name="AcousticOn" />
+</node>
+
+<node color="Black">
+   <type name="VisualOff" />
+</node>
+
+<node color="Red">
+   <type name="VisualOn" />
+</node>
+
+<node color="Blue">
+   <type name="BrakePressure"/>
+   <type name="SCSLever"/>
+</node>
+
+<node color="Green">
+   <type name="RRSensor"/>
+   <type name="RRState"/>
 </node>
 
 <node hideunconnected="yes">
