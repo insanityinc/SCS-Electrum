@@ -1,3 +1,15 @@
+/*
+	v.cc_lever' = v.cc_lever
+	v.key_state' = v.key_state
+	v.engine' = v.engine
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.speed' = v.speed
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+*/
+
 sig Vehicle {
 	-- cruise control lever
 	var cc_lever :				one SCSLever,
@@ -42,7 +54,14 @@ pred insert_key [ v : Vehicle ] {
 	-- pos
 	v.key_state' = KeyInserted
 	-- frame
-	v.engine' = v.engine and v.speed' = v.speed and v.cc_lever' = v.cc_lever
+	v.cc_lever' = v.cc_lever
+	v.engine' = v.engine
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.speed' = v.speed
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
 }
 
 pred turn_engine_on [ v : Vehicle ] {
@@ -53,7 +72,61 @@ pred turn_engine_on [ v : Vehicle ] {
 	v.key_state' = KeyInIgnitionOnPosition
 	v.engine' = On
 	-- frame
-	v.cc_lever' = v.cc_lever and v.speed' = v.speed 
+	v.cc_lever' = v.cc_lever
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.speed' = v.speed
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning	
+}
+
+pred speed_change_slow [ v : Vehicle ] {
+	-- pre
+	v.speed = Stopped
+	-- pos
+	v.speed' = Slow
+	-- frame
+	v.cc_lever' = v.cc_lever
+	v.key_state' = v.key_state
+	v.engine' = v.engine
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
+pred speed_change_normal [ v : Vehicle ] {
+	-- pre
+	v.speed = Slow
+	-- pos
+	v.speed' = Normal
+	-- frame
+	v.cc_lever' = v.cc_lever
+	v.key_state' = v.key_state
+	v.engine' = v.engine
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
+pred speed_change_fast [ v : Vehicle ] {
+	-- pre
+	v.speed = Normal
+	-- pos
+	v.speed' = Fast
+	-- frame
+	v.cc_lever' = v.cc_lever
+	v.key_state' = v.key_state
+	v.engine' = v.engine
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
 }
 
 -- do nothing
