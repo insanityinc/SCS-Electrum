@@ -1,3 +1,13 @@
+/**
+Technical Report available at: https://abz2020.uni-ulm.de/resources/files/casestudyABZ2020v1.11.pdf
+
+----- Cruise Control System ------
+
+@author Lucas Pereira 68547
+@author Ricardo Pereira 73577
+
+**/
+
 sig Vehicle {
 	-- cruise control lever
 	var cruise_control_lever :	one SCSLever,
