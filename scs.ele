@@ -1,18 +1,7 @@
-/*
-	v.cc_lever' = v.cc_lever
-	v.key_state' = v.key_state
-	v.engine' = v.engine
-	v.rr_state' = v.rr_state
-	v.rr_sensor' = v.rr_sensor
-	v.speed' = v.speed
-	v.brake_pressure' = v.brake_pressure
-	v.acoustic_warning' = v.acoustic_warning
-	v.visual_warning' = v.visual_warning
-*/
-
 sig Vehicle {
 	-- cruise control lever
-	var cc_lever :				one SCSLever,
+	var cruise_control_lever :	one SCSLever,
+	var cruise_control:		one CruiseControl,
 	-- sensors
 	var key_state :				one KeyState,
 	var engine :				one Engine,
@@ -34,10 +23,12 @@ enum Speed					{ Stopped, Slow, Normal, Fast }
 enum BrakePressure			{ Zero, Quarter, Half, Full }
 enum AcousticWarning		{ AcousticOn, AcousticOff }
 enum VisualWarning			{ VisualOn, VisualOff }
+enum CruiseControl			{ CCOn, CCOff }
 
 -- initialization
 pred init [ v : Vehicle ] {
-	v.cc_lever = Neutral
+	v.cruise_control_lever = Neutral
+	v.cruise_control = CCOff
 	v.key_state = NoKeyInserted
 	v.engine = Off
 	v.rr_state = Ready
@@ -54,7 +45,8 @@ pred insert_key [ v : Vehicle ] {
 	-- pos
 	v.key_state' = KeyInserted
 	-- frame
-	v.cc_lever' = v.cc_lever
+	v.cruise_control_lever' = v.cruise_control_lever
+	v.cruise_control' = v.cruise_control
 	v.engine' = v.engine
 	v.rr_state' = v.rr_state
 	v.rr_sensor' = v.rr_sensor
@@ -72,24 +64,27 @@ pred turn_engine_on [ v : Vehicle ] {
 	v.key_state' = KeyInIgnitionOnPosition
 	v.engine' = On
 	-- frame
-	v.cc_lever' = v.cc_lever
+	v.cruise_control_lever' = v.cruise_control_lever
+	v.cruise_control' = v.cruise_control
 	v.rr_state' = v.rr_state
 	v.rr_sensor' = v.rr_sensor
 	v.speed' = v.speed
 	v.brake_pressure' = v.brake_pressure
 	v.acoustic_warning' = v.acoustic_warning
-	v.visual_warning' = v.visual_warning	
+	v.visual_warning' = v.visual_warning
 }
 
 pred speed_change_slow [ v : Vehicle ] {
 	-- pre
 	v.speed = Stopped
+	v.engine = On
 	-- pos
 	v.speed' = Slow
+	v.engine' = On
 	-- frame
-	v.cc_lever' = v.cc_lever
+	v.cruise_control_lever' = v.cruise_control_lever
+	v.cruise_control' = v.cruise_control
 	v.key_state' = v.key_state
-	v.engine' = v.engine
 	v.rr_state' = v.rr_state
 	v.rr_sensor' = v.rr_sensor
 	v.brake_pressure' = v.brake_pressure
@@ -100,12 +95,14 @@ pred speed_change_slow [ v : Vehicle ] {
 pred speed_change_normal [ v : Vehicle ] {
 	-- pre
 	v.speed = Slow
+	v.engine = On
 	-- pos
 	v.speed' = Normal
+	v.engine' = On
 	-- frame
-	v.cc_lever' = v.cc_lever
+	v.cruise_control_lever' = v.cruise_control_lever
+	v.cruise_control' = v.cruise_control
 	v.key_state' = v.key_state
-	v.engine' = v.engine
 	v.rr_state' = v.rr_state
 	v.rr_sensor' = v.rr_sensor
 	v.brake_pressure' = v.brake_pressure
@@ -116,12 +113,14 @@ pred speed_change_normal [ v : Vehicle ] {
 pred speed_change_fast [ v : Vehicle ] {
 	-- pre
 	v.speed = Normal
+	v.engine = On
 	-- pos
 	v.speed' = Fast
+	v.engine' = On
 	-- frame
-	v.cc_lever' = v.cc_lever
+	v.cruise_control_lever' = v.cruise_control_lever
+	v.cruise_control' = v.cruise_control
 	v.key_state' = v.key_state
-	v.engine' = v.engine
 	v.rr_state' = v.rr_state
 	v.rr_sensor' = v.rr_sensor
 	v.brake_pressure' = v.brake_pressure
@@ -129,9 +128,109 @@ pred speed_change_fast [ v : Vehicle ] {
 	v.visual_warning' = v.visual_warning
 }
 
+pred change_cruise_control_neutral [ v : Vehicle ] {
+	-- pre
+	v.engine = On
+	v.cruise_control_lever not in Neutral
+	v.speed not in Stopped
+	-- pos
+	v.engine' = On
+	v.cruise_control_lever' = Neutral
+	v.speed' not in Stopped
+	-- frame
+	v.cruise_control' = v.cruise_control
+	v.speed' = v.speed
+	v.key_state' = v.key_state
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
+pred change_cruise_control_one [ v : Vehicle ] {
+	-- pre
+	v.engine = On
+	v.cruise_control = CCOff
+	v.cruise_control_lever = Neutral
+	v.speed not in Stopped
+	-- pos
+	v.engine' = On
+	v.cruise_control' = CCOn
+	v.cruise_control_lever' = One
+	v.speed' not in Stopped
+	-- frame
+	v.key_state' = v.key_state
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
+pred change_cruise_control_four [ v : Vehicle ] {
+	-- pre
+	v.engine = On
+	v.cruise_control = CCOn
+	v.cruise_control_lever = Neutral
+	v.speed not in Stopped
+	-- pos
+	v.engine' = On
+	v.cruise_control' = CCOn
+	v.cruise_control_lever' = Four
+	v.speed' not in Stopped
+	-- frame
+	v.speed' = v.speed
+	v.key_state' = v.key_state
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
+pred activate_cruise_control [ v : Vehicle ] {
+	-- pre
+	v.engine = On
+	v.cruise_control = CCOff
+	v.cruise_control_lever = One
+	-- pos
+	v.engine' = On
+	v.cruise_control' = CCOn
+	v.cruise_control_lever' = One
+	-- frame
+	v.key_state' = v.key_state
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.speed' = v.speed
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
+pred desactivate_cruise_control [ v : Vehicle ] {
+	-- pre
+	v.engine = On
+	v.cruise_control = CCOn
+	v.cruise_control_lever = Four
+	-- pos
+	v.engine' = On
+	v.cruise_control' = CCOff
+	v.cruise_control_lever' = Neutral
+	-- frame
+	v.key_state' = v.key_state
+	v.rr_state' = v.rr_state
+	v.rr_sensor' = v.rr_sensor
+	v.speed' = v.speed
+	v.brake_pressure' = v.brake_pressure
+	v.acoustic_warning' = v.acoustic_warning
+	v.visual_warning' = v.visual_warning
+}
+
 -- do nothing
 pred skip {
-	cc_lever' = cc_lever
+	cruise_control_lever' = cruise_control_lever
+	cruise_control' = cruise_control
 	key_state' = key_state
 	engine' = engine
 	rr_state' = rr_state
@@ -148,9 +247,18 @@ fact init {
 
 fact transitions {
 	always ( all v : Vehicle | insert_key [ v ] or turn_engine_on [ v ] or
-							   speed_change_slow [ v ] or speed_change_normal [ v ] or speed_change_fast [ v ] or
+							   speed_change_slow [ v ] or speed_change_normal [ v ] or
+							   change_cruise_control_neutral [ v ] or change_cruise_control_one [ v ] or change_cruise_control_four [ v ] or
+							   activate_cruise_control [ v ] or desactivate_cruise_control [ v ] or
 							   skip )
 	eventually Vehicle.engine = On
+	eventually Vehicle.speed = Slow
+	eventually Vehicle.speed = Normal
+//	eventually Vehicle.cruise_control_lever = One
+//	eventually Vehicle.cruise_control = CCOn
+//	eventually Vehicle.cruise_control_lever = Neutral
+//	eventually Vehicle.cruise_control_lever = Four
+//	eventually Vehicle.cruise_control = CCOff
 }
 
 run {  } for 1 but exactly 1 Vehicle
