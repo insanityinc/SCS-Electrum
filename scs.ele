@@ -174,7 +174,7 @@ pred change_cruise_control_lever_two [ v : Vehicle ] {
 	-- pos
 	v.engine' = On
 	v.cruise_control' = CCOn
-	v.cruise_control_lever = Two
+	v.cruise_control_lever' = Two
 	v.desired_speed' = v.desired_speed.S/next
 	v.speed' = v.desired_speed'
 	-- frame
@@ -191,7 +191,7 @@ pred change_cruise_control_lever_three [ v : Vehicle ] {
 	-- pos
 	v.engine' = On
 	v.cruise_control' = CCOn
-	v.cruise_control_lever = Two
+	v.cruise_control_lever' = Three
 	v.desired_speed' = v.desired_speed.S/prev
 	v.speed' = v.desired_speed'
 	-- frame
@@ -216,7 +216,102 @@ pred change_cruise_control_lever_four [ v : Vehicle ] {
 	rr_and_warnings_dont_change [ v ]
 }
 
+pred rr_sensor_changeTO_obstacle [ v : Vehicle ] {
+	-- pre
+	v.rr_state = Ready
+	v.rr_sensor = Clear
+	--pos
+	v.rr_state' = Ready
+	v.rr_sensor' = Obstacle
+	-- frame
+	v.visual_warning' = v.visual_warning
+	v.acoustic_warning' = v.acoustic_warning
+	speed_and_brake_dont_change [ v ]
+	cruise_control_dont_change [ v ]
+	engine_and_keystate_dont_change [ v ]
+}
 
+pred rr_sensor_changeTO_clear [ v : Vehicle ] {
+	-- pre
+	v.rr_state = Ready
+	v.rr_sensor = Obstacle
+	--pos
+	v.rr_state' = Ready
+	v.rr_sensor' = Clear
+	-- frame
+	v.visual_warning' = v.visual_warning
+	v.acoustic_warning' = v.acoustic_warning
+	speed_and_brake_dont_change [ v ]
+	cruise_control_dont_change [ v ]
+	engine_and_keystate_dont_change [ v ]
+}
+
+pred rr_sensor_obstacle_visual_on [ v : Vehicle ] {
+	-- pre
+	v.rr_sensor = Obstacle
+	v.speed in Stopped or v.speed in Slow
+	v.visual_warning = VisualOff
+	-- pos
+	v.rr_sensor' = Obstacle
+	v.speed' = v.speed
+	v.visual_warning' = VisualOn
+	-- frame
+	v.rr_state' = v.rr_state
+	v.acoustic_warning' = v.acoustic_warning
+	v.brake_pressure' = v.brake_pressure
+	cruise_control_dont_change [ v ]
+	engine_and_keystate_dont_change [ v ]
+}
+
+pred rr_sensor_obstacle_visual_off [ v : Vehicle ] {
+	-- pre
+	v.rr_sensor = Clear
+	v.visual_warning = VisualOn
+	-- pos
+	v.rr_sensor' = Clear
+	v.visual_warning' = VisualOff
+	-- frame
+	v.speed' = v.speed
+	v.rr_state' = v.rr_state
+	v.acoustic_warning' = v.acoustic_warning
+	v.brake_pressure' = v.brake_pressure
+	cruise_control_dont_change [ v ]
+	engine_and_keystate_dont_change [ v ]
+}
+
+pred rr_sensor_obstacle_acoustic_on [ v : Vehicle ] {
+	-- pre
+	v.rr_sensor = Obstacle
+	v.speed in Normal or v.speed in Fast
+	v.acoustic_warning = AcousticOff
+	-- pos
+	v.rr_sensor' = Obstacle
+	v.speed' = v.speed
+	v.acoustic_warning' = AcousticOn
+	-- frame
+	v.rr_state' = v.rr_state
+	v.visual_warning' = v.visual_warning
+	v.brake_pressure' = v.brake_pressure
+	cruise_control_dont_change [ v ]
+	engine_and_keystate_dont_change [ v ]
+}
+
+pred rr_sensor_obstacle_acoustic_off [ v : Vehicle ] {
+	-- pre
+	v.rr_sensor = Clear
+	v.speed = Normal or v.speed = Fast
+	v.acoustic_warning = AcousticOn
+	-- pos
+	v.rr_sensor' = Clear
+	v.speed' = Normal or v.speed' = Fast
+	v.acoustic_warning' = AcousticOff
+	-- frame
+	v.rr_state' = v.rr_state
+	v.visual_warning' = v.visual_warning
+	v.brake_pressure' = v.brake_pressure
+	cruise_control_dont_change [ v ]
+	engine_and_keystate_dont_change [ v ]
+}
 
 -- do nothing
 pred skip {
@@ -244,12 +339,19 @@ fact transitions {
 							change_cruise_control_lever_two [ v ] or
 							change_cruise_control_lever_three [ v ] or
 							change_cruise_control_lever_four [ v ] or
-							cruise_control_lever_default_neutral [ v ] )
+							cruise_control_lever_default_neutral [ v ] or
+							rr_sensor_changeTO_obstacle [ v ] or
+							rr_sensor_changeTO_clear [ v ] or
+							rr_sensor_obstacle_visual_on [ v ] or
+							rr_sensor_obstacle_visual_off [ v ]  or
+							rr_sensor_obstacle_acoustic_on [ v ] or
+							rr_sensor_obstacle_acoustic_off [ v ] )
 }
 
 run {
-//	eventually Vehicle.speed = Normal
-	eventually Vehicle.cruise_control = CCOn
+	eventually Vehicle.speed = Slow
+//	eventually Vehicle.cruise_control_lever = Three
+	eventually Vehicle.acoustic_warning = AcousticOn
 } for 1 but exactly 1 Vehicle
 
 /**
