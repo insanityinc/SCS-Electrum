@@ -33,7 +33,7 @@ enum CruiseControl			{ CCOn, CCOff }
 enum KeyState				{ NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
 enum Engine					{ On, Off }
 enum RRState					{ Ready, Dirty, NotReady }
-enum RRSensor				{ Clear, Obstacle, Unknown }
+enum RRSensor				{ Clear, Obstacle }
 enum Speed					{ Stopped, Slow, Normal, Fast }
 enum BrakePressure			{ Zero, Quarter, Half, Full }
 enum AcousticWarning		{ AcousticOn, AcousticOff }
@@ -52,6 +52,24 @@ pred init [ v : Vehicle ] {
 	v.visual_warning = VisualOff
 	v.rr_state = Ready
 	v.rr_sensor = Clear
+}
+
+-- do nothing
+pred skip {
+	cruise_control_lever' = cruise_control_lever
+	cruise_control' = cruise_control
+	desired_speed' = desired_speed
+	key_state' = key_state
+	engine' = engine
+	speed' = speed
+	brake_pressure' = brake_pressure
+}
+
+pred skip_2 {
+	rr_state' = rr_state
+	rr_sensor' = rr_sensor
+	acoustic_warning' = acoustic_warning
+	visual_warning' = visual_warning
 }
 
 pred engine_and_keystate_dont_change [ v : Vehicle ] {
@@ -104,10 +122,12 @@ pred speed_change_up [ v : Vehicle ] {
 	-- pre
 	v.engine = On
 	v.cruise_control = CCOff
+	v.cruise_control_lever = Neutral
 	-- pos
 	v.speed' = v.speed.S/next
 	v.engine' = On
 	v.cruise_control' = CCOff
+	v.cruise_control_lever' = Neutral
 	-- frame
 	v.key_state' = v.key_state
 	v.brake_pressure' = v.brake_pressure
@@ -119,10 +139,12 @@ pred speed_change_down [ v : Vehicle ] {
 	-- pre
 	v.engine = On
 	v.cruise_control = CCOff
+	v.cruise_control_lever = Neutral
 	-- pos
 	v.speed' = v.speed.S/prev
 	v.engine' = On
 	v.cruise_control' = CCOff
+	v.cruise_control_lever' = Neutral
 	-- frame
 	v.key_state' = v.key_state
 	v.brake_pressure' = v.brake_pressure
@@ -207,22 +229,54 @@ pred change_cruise_control_lever_four [ v : Vehicle ] {
 	speed_and_brake_dont_change [ v ]
 }
 
--- do nothing
-pred skip {
-	cruise_control_lever' = cruise_control_lever
-	cruise_control' = cruise_control
-	desired_speed' = desired_speed
-	key_state' = key_state
-	engine' = engine
-	speed' = speed
-	brake_pressure' = brake_pressure
+pred rr_sensor_change_obstacle [ v : Vehicle ] {
+	-- pre
+	v.rr_state = Ready
+	v.visual_warning = VisualOff
+	v.rr_sensor = Clear
+	-- pos
+	v.rr_state' = Ready
+	v.rr_sensor' = Obstacle
+	v.visual_warning' = VisualOff
+	-- frame
+	v.acoustic_warning' = v.acoustic_warning
 }
 
-pred skip_2 {
-	rr_state' = rr_state
-	rr_sensor' = rr_sensor
-	acoustic_warning' = acoustic_warning
-	visual_warning' = visual_warning
+pred rr_sensor_change_clear [ v : Vehicle ] {
+	-- pre
+	v.rr_state = Ready
+	v.rr_sensor = Obstacle
+	v.visual_warning = VisualOn
+	-- pos
+	v.rr_state' = Ready
+	v.rr_sensor' = Clear
+	v.visual_warning' = VisualOn
+	-- frame
+	v.acoustic_warning' = v.acoustic_warning
+}
+
+pred visual_warning_on [ v : Vehicle ] {
+	-- pre
+	v.visual_warning = VisualOff
+	v.rr_sensor = Obstacle
+	-- pos
+	v.visual_warning' = VisualOn
+	v.rr_sensor' = Obstacle
+	-- frame
+	v.rr_state' = v.rr_state
+	v.acoustic_warning' = v.acoustic_warning
+}
+
+pred visual_warning_off [ v : Vehicle ] {
+	-- pre
+	v.visual_warning = VisualOn
+	v.rr_sensor = Clear
+	-- pos
+	v.visual_warning' = VisualOff
+	v.rr_sensor' = Clear
+	-- frame
+	v.rr_state' = v.rr_state
+	v.acoustic_warning' = v.acoustic_warning
 }
 
 fact init {
@@ -240,6 +294,12 @@ fact transitions {
 							cruise_control_lever_default_neutral [ v ] )
 }
 
+fact warning {
+	always ( all v : Vehicle | rr_sensor_change_obstacle [ v ] or
+							rr_sensor_change_clear [ v ] or
+							visual_warning_on [ v ] or
+							visual_warning_off [ v ] )
+}
+
 run {
-	eventually Vehicle.speed = Fast
 } for 1 but exactly 1 Vehicle
