@@ -265,6 +265,26 @@ pred rr_sensor_obstacle_visual_on [ v : Vehicle ] {
 	engine_and_keystate_dont_change [ v ]
 }
 
+pred rr_sensor_on_in_trasition_slow_normal [ v : Vehicle ] {
+	-- pre
+	v.engine = On
+	v.rr_sensor = Obstacle
+	v.speed = Slow
+	v.visual_warning = VisualOn
+	v.acoustic_warning = AcousticOff
+	-- pos
+	v.engine' = On
+	v.rr_sensor' = v.rr_sensor
+	v.speed' = Normal
+	v.visual_warning' = VisualOff
+	v.acoustic_warning' = AcousticOn
+	-- frame
+	v.brake_pressure' = v.brake_pressure
+	v.rr_state' = v.rr_state
+	v.key_state' = v.key_state
+	cruise_control_dont_change [ v ]
+}
+
 pred rr_sensor_obstacle_visual_off [ v : Vehicle ] {
 	-- pre
 	v.rr_sensor = Clear
@@ -347,14 +367,15 @@ fact transitions {
 							rr_sensor_obstacle_visual_on [ v ] or
 							rr_sensor_obstacle_visual_off [ v ]  or
 							rr_sensor_obstacle_acoustic_on [ v ] or
-							rr_sensor_obstacle_acoustic_off [ v ] )
+							rr_sensor_obstacle_acoustic_off [ v ] or
+							rr_sensor_on_in_trasition_slow_normal [ v ])
 }
 
 run {
 //	eventually Vehicle.key_state = KeyInserted
 	eventually Vehicle.engine = On
 //	eventually Vehicle.cruise_control_lever = Three
-//	eventually Vehicle.visual_warning = VisualOn
+	eventually Vehicle.visual_warning = VisualOn
 } for 1 but exactly 1 Vehicle
 
 /**
