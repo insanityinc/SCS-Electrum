@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <alloy>
 
-<view fontsize="14">
+<view edgetheme="Standard" fontsize="14">
 
-<defaultnode/>
+<defaultnode hideunconnected="yes"/>
 
 <defaultedge/>
 
@@ -11,81 +11,78 @@
    <type name="AcousticOff"/>
    <type name="AcousticOn"/>
    <type name="Clear"/>
-   <type name="Dirty"/>
+   <type name="CruiseControl"/>
+   <type name="CruiseControlLever"/>
    <type name="Engine"/>
    <type name="Fast"/>
-   <type name="Five"/>
-   <type name="Four"/>
-   <type name="Full"/>
-   <type name="Half"/>
    <type name="Int"/>
    <type name="KeyInIgnitionOnPosition"/>
    <type name="KeyInserted"/>
    <type name="KeyState"/>
-   <type name="Neutral"/>
    <type name="NoKeyInserted"/>
    <type name="Normal"/>
    <type name="NotReady"/>
    <type name="Obstacle"/>
    <type name="Off"/>
    <type name="On"/>
-   <type name="One"/>
-   <type name="Quarter"/>
    <type name="Ready"/>
-   <type name="Six"/>
+   <type name="RRSensor"/>
+   <type name="RRState"/>
    <type name="Slow"/>
    <type name="Speed"/>
    <type name="Stopped"/>
    <type name="String"/>
-   <type name="Three"/>
-   <type name="Two"/>
-   <type name="Unknown"/>
+   <type name="univ"/>
    <type name="VisualOff"/>
    <type name="VisualOn"/>
-   <type name="Zero"/>
+   <type name="WarningAcoustic"/>
+   <type name="WarningVisual"/>
    <type name="open$10/Ord"/>
-   <type name="open$3/Ord"/>
+   <type name="open$11/Ord"/>
    <type name="open$4/Ord"/>
-   <type name="open$5/Ord"/>
    <type name="open$6/Ord"/>
    <type name="open$7/Ord"/>
    <type name="open$8/Ord"/>
    <type name="open$9/Ord"/>
    <type name="ordering/Ord"/>
+   <type name="S/Ord"/>
    <type name="seq/Int"/>
 </node>
 
-<node color="Black">
-   <type name="AcousticOff" />
+<node color="White">
+   <type name="VisualOff"/>
+   <type name="AcousticOff"/>
 </node>
 
-<node color="Red">
-   <type name="AcousticOn" />
-</node>
-
-<node color="Black">
-   <type name="VisualOff" />
-</node>
-
-<node color="Red">
-   <type name="VisualOn" />
-</node>
-
-<node color="Blue">
-   <type name="BrakePressure"/>
-   <type name="SCSLever"/>
+<node color="Yellow">
+   <type name="VisualOn"/>
+   <type name="AcousticOn"/>
 </node>
 
 <node color="Green">
-   <type name="RRSensor"/>
-   <type name="RRState"/>
+   <type name="Ready"/>
+   <type name="Clear"/>
 </node>
 
-<node hideunconnected="yes">
-   <type name="univ"/>
+<node color="Red">
+   <type name="NotReady"/>
+   <type name="Obstacle"/>
 </node>
 
-<node shape="Trapezoid" color="Blue">
+<node color="Blue">
+   <type name="CruiseControlOn"/>
+   <type name="Four"/>
+   <type name="One"/>
+   <type name="Three"/>
+   <type name="Two"/>
+</node>
+
+<node color="Gray">
+   <type name="CruiseControlOff"/>
+   <type name="Neutral"/>
+</node>
+
+<node shape="Trapezoid" color="Blue" label="VEHICLE">
    <type name="Vehicle"/>
 </node>
 
@@ -93,6 +90,7 @@
    <relation name="engine"> <type name="Vehicle"/> <type name="Engine"/> </relation>
    <relation name="key_state"> <type name="Vehicle"/> <type name="KeyState"/> </relation>
    <relation name="speed"> <type name="Vehicle"/> <type name="Speed"/> </relation>
+   <relation name="speed_desired"> <type name="Vehicle"/> <type name="Speed"/> </relation>
 </edge>
 
 </view>

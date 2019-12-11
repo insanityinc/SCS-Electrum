@@ -1,7 +1,7 @@
 /**
-Technical Report available at: https://abz2020.uni-ulm.de/resources/files/casestudyABZ2020v1.11.pdf
-
 ----- Cruise Control System ------
+
+Technical Report available at: https://abz2020.uni-ulm.de/resources/files/casestudyABZ2020v1.11.pdf
 
 @author Lucas Pereira 68547
 @author Ricardo Pereira 73577
@@ -9,67 +9,64 @@ Technical Report available at: https://abz2020.uni-ulm.de/resources/files/casest
 **/
 
 open util/ordering[Speed] as S
-open util/ordering[SCSLever] as L
 
-sig Vehicle {
-	-- cruise control
-	var cruise_control_lever :	one SCSLever,
-	var cruise_control:		one CruiseControl,
-	var desired_speed:		one Speed,
+one sig Vehicle {
 	-- sensors
-	var key_state :				one KeyState,
-	var engine :				one Engine,
-	var rr_state :				one RRState,
-	var rr_sensor :				one RRSensor,
+	var key_state:					one KeyState,
+	var engine:					one Engine,
+	var rr_state:					one RRState,
+	var rr_sensor:					one RRSensor,
+
 	-- actuators
-	var speed :				one Speed,
-	var brake_pressure :		one BrakePressure,
-	var acoustic_warning :	one AcousticWarning,
-	var visual_warning :		one VisualWarning
+	var speed:						one Speed,
+	//var brake_pressure:			one BrakePressure,
+	var warning_acoustic:			one WarningAcoustic,
+	var warning_visual:			one WarningVisual,
+
+	-- cruise control var's
+	var cruise_control:			one CruiseControl,
+	var cruise_control_lever:		one CruiseControlLever,
+	var speed_desired:			one Speed
 }
 
-enum SCSLever				{ Neutral, One, Two, Three, Four, Five, Six }
-enum CruiseControl			{ CCOn, CCOff }
-enum KeyState				{ NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
-enum Engine					{ On, Off }
-enum RRState					{ Ready, Dirty, NotReady }
-enum RRSensor				{ Clear, Obstacle }
-enum Speed					{ Stopped, Slow, Normal, Fast }
-enum BrakePressure			{ Zero, Quarter, Half, Full }
-enum AcousticWarning		{ AcousticOn, AcousticOff }
-enum VisualWarning			{ VisualOn, VisualOff }
+enum Engine						{ On, Off }
+enum KeyState					{ NoKeyInserted, KeyInserted, KeyInIgnitionOnPosition }
+enum Speed						{ Stopped, Slow, Normal, Fast }
+//enum BrakePressure			{ None, Full }
+enum CruiseControl				{ CruiseControlOn, CruiseControlOff }
+enum CruiseControlLever		{ Neutral, One, Two, Three, Four }
+enum RRState						{ Ready, NotReady }
+enum RRSensor					{ Clear, Obstacle }
+enum WarningAcoustic			{ AcousticOn, AcousticOff }
+enum WarningVisual				{ VisualOn, VisualOff }
 
--- initialization
-pred init [ v : Vehicle ] {
-	v.cruise_control_lever = Neutral
-	v.cruise_control = CCOff
-	v.desired_speed = Stopped
+pred init [v:Vehicle] {
 	v.key_state = NoKeyInserted
 	v.engine = Off
 	v.speed = Stopped
-	v.brake_pressure = Zero
-	v.acoustic_warning = AcousticOff
-	v.visual_warning = VisualOff
+	v.speed_desired = Stopped
+	v.cruise_control = CruiseControlOff
+	v.cruise_control_lever = Neutral
 	v.rr_state = Ready
 	v.rr_sensor = Clear
+	v.warning_acoustic = AcousticOff
+	v.warning_visual = VisualOff
 }
 
--- do nothing
 pred skip {
-	cruise_control_lever' = cruise_control_lever
-	cruise_control' = cruise_control
-	desired_speed' = desired_speed
 	key_state' = key_state
 	engine' = engine
-	speed' = speed
-	brake_pressure' = brake_pressure
+	speed' = speed	
+	speed_desired' = speed_desired
+	cruise_control' = cruise_control
+	cruise_control_lever' = cruise_control_lever
 }
 
 pred skip_2 {
 	rr_state' = rr_state
 	rr_sensor' = rr_sensor
-	acoustic_warning' = acoustic_warning
-	visual_warning' = visual_warning
+	warning_visual' = warning_visual
+	warning_acoustic' = warning_acoustic
 }
 
 pred engine_and_keystate_dont_change [ v : Vehicle ] {
@@ -77,25 +74,18 @@ pred engine_and_keystate_dont_change [ v : Vehicle ] {
 	v.key_state' = v.key_state
 }
 
-/*pred rr_and_warnings_dont_change [ v : Vehicle ] {
-	v.rr_state' = v.rr_state
-	v.rr_sensor' = v.rr_sensor
-	v.acoustic_warning' = v.acoustic_warning
-	v.visual_warning' = v.visual_warning
-}*/
-
 pred cruise_control_dont_change [ v : Vehicle ] {
 	v.cruise_control_lever' = v.cruise_control_lever
 	v.cruise_control' = v.cruise_control
-	v.desired_speed' = v.desired_speed
+	v.speed_desired' = v.speed_desired
 }
 
 pred speed_and_brake_dont_change [ v : Vehicle ] {
 	v.speed' = v.speed
-	v.brake_pressure' = v.brake_pressure
+	//v.brake_pressure' = v.brake_pressure
 }
 
-pred insert_key [ v : Vehicle ] {
+pred insert_key [v:Vehicle] {
 	-- pre
 	v.key_state = NoKeyInserted
 	-- pos
@@ -106,7 +96,7 @@ pred insert_key [ v : Vehicle ] {
 	speed_and_brake_dont_change [ v ]
 }
 
-pred turn_engine_on [ v : Vehicle ] {
+pred turn_engine_on [v:Vehicle] {
 	-- pre
 	v.key_state = KeyInserted
 	v.engine = Off
@@ -118,206 +108,243 @@ pred turn_engine_on [ v : Vehicle ] {
 	cruise_control_dont_change [ v ]
 }
 
-pred speed_change_up [ v : Vehicle ] {
+pred speed_change_up [v:Vehicle] {
 	-- pre
 	v.engine = On
-	v.cruise_control = CCOff
+	//v.cruise_control = CruiseControlOff
 	v.cruise_control_lever = Neutral
 	-- pos
+	v.engine' = On
+	//v.cruise_control' = CruiseControlOff
+	v.cruise_control_lever' = Neutral
+	v.speed' =  v.speed.S/next
+	-- frame
+	v.cruise_control' = v.cruise_control
+	v.key_state' = v.key_state
+	v.speed_desired' = v.speed_desired
+	
+}
+
+pred speed_change_down [v:Vehicle] {
+	-- pre
+	v.engine = On
+	//v.cruise_control = CruiseControlOff
+	v.cruise_control_lever = Neutral
+	-- pos
+	v.engine' = On
+	//v.cruise_control' = CruiseControlOff
+	v.cruise_control_lever' = Neutral
+	v.speed' =  v.speed.S/prev
+	-- frame
+	v.cruise_control' = v.cruise_control
+	v.key_state' = v.key_state
+	v.speed_desired' = v.speed_desired
+}
+
+pred speed_change_cc_2 [v:Vehicle] {
+	-- pre
+	v.cruise_control = CruiseControlOn
+	v.cruise_control_lever = Neutral
+	v.speed = v.speed_desired.S/next
+	-- pos
+	v.cruise_control' = CruiseControlOn
+	v.cruise_control_lever' = Neutral
 	v.speed' = v.speed.S/next
-	v.engine' = On
-	v.cruise_control' = CCOff
-	v.cruise_control_lever' = Neutral
 	-- frame
-	v.key_state' = v.key_state
-	v.brake_pressure' = v.brake_pressure
-	v.cruise_control_lever' = v.cruise_control_lever
-	v.desired_speed' = v.desired_speed
+	v.speed_desired' = v.speed_desired
+	engine_and_keystate_dont_change[v]
 }
 
-pred speed_change_down [ v : Vehicle ] {
+pred speed_change_cc_3 [v:Vehicle] {
 	-- pre
-	v.engine = On
-	v.cruise_control = CCOff
+	v.cruise_control = CruiseControlOn
 	v.cruise_control_lever = Neutral
+	v.speed = v.speed_desired.S/prev
 	-- pos
-	v.speed' = v.speed.S/prev
-	v.engine' = On
-	v.cruise_control' = CCOff
+	v.cruise_control' = CruiseControlOn
 	v.cruise_control_lever' = Neutral
+	v.speed' = v.speed.S/prev
 	-- frame
-	v.key_state' = v.key_state
-	v.brake_pressure' = v.brake_pressure
-	v.cruise_control_lever' = v.cruise_control_lever
-	v.desired_speed' = v.desired_speed
+	v.speed_desired' = v.speed_desired
+	engine_and_keystate_dont_change[v]
 }
 
-pred cruise_control_lever_default_neutral [ v : Vehicle ] {
+pred cruise_control_lever_default_neutral [v:Vehicle] {
 	-- pre
 	v.cruise_control_lever not in Neutral
 	-- pos
 	v.cruise_control_lever' = Neutral
 	-- frame
 	v.cruise_control' = v.cruise_control
-	v.desired_speed' = v.desired_speed
+	v.speed_desired' = v.speed_desired
 	engine_and_keystate_dont_change [ v ]
 	speed_and_brake_dont_change [ v ]
 }
 
-pred change_cruise_control_lever_one [ v : Vehicle ] {
+pred change_cruise_control_lever_neutral [v:Vehicle] {
+	-- pre
+	v.cruise_control_lever not in Neutral
+	-- pos
+	v.cruise_control_lever' = Neutral
+	-- frame
+	v.cruise_control' = v.cruise_control
+	v.speed_desired' = v.speed_desired
+	engine_and_keystate_dont_change [ v ]
+	speed_and_brake_dont_change [ v ]
+}
+
+pred change_cruise_control_lever_one [v:Vehicle] {
 	-- pre
 	v.engine = On
-	v.cruise_control = CCOff
+	v.cruise_control = CruiseControlOff
 	v.cruise_control_lever = Neutral
-	not v.speed = Stopped
+	v.speed_desired = Stopped
 	-- pos
 	v.engine' = On
-	v.cruise_control' = CCOn
+	v.cruise_control' = CruiseControlOn
 	v.cruise_control_lever' = One
-	v.desired_speed' = v.speed
-	not v.speed' = Stopped
+	v.speed_desired' = v.speed
 	-- frame
 	v.key_state' = v.key_state
-	v.brake_pressure' = v.brake_pressure
-	speed_and_brake_dont_change [ v ]
+	speed_and_brake_dont_change[v]
 }
 
-pred change_cruise_control_lever_two [ v : Vehicle ] {
+pred change_cruise_control_lever_two [v:Vehicle] {
 	-- pre
-	v.engine = On
-	v.cruise_control = CCOn
+	v.cruise_control = CruiseControlOn
 	v.cruise_control_lever = Neutral
 	-- pos
-	v.engine' = On
-	v.cruise_control' = CCOn
+	v.cruise_control' = CruiseControlOn
 	v.cruise_control_lever' = Two
-	v.desired_speed' = v.desired_speed.S/next
+	v.speed_desired' = v.speed_desired.S/next
 	-- frame
-	v.speed' = v.speed
-	v.key_state' = v.key_state
-	v.brake_pressure' = v.brake_pressure
+	speed_and_brake_dont_change[v]
+	engine_and_keystate_dont_change[v]
 }
 
-pred change_cruise_control_lever_three [ v : Vehicle ] {
+pred change_cruise_control_lever_three [v:Vehicle] {
+	-- pre
+	v.cruise_control = CruiseControlOn
+	v.cruise_control_lever = Neutral
+	-- pos
+	v.cruise_control' = CruiseControlOn
+	v.cruise_control_lever' = Two
+	v.speed_desired' = v.speed_desired.S/next
+	-- frame
+	speed_and_brake_dont_change[v]
+	engine_and_keystate_dont_change[v]
+}
+
+pred change_cruise_control_lever_four [v:Vehicle] {
 	-- pre
 	v.engine = On
-	v.cruise_control = CCOn
+	v.cruise_control = CruiseControlOn
 	v.cruise_control_lever = Neutral
 	-- pos
 	v.engine' = On
-	v.cruise_control' = CCOn
-	v.cruise_control_lever' = Three
-	v.desired_speed' = v.desired_speed.S/prev
-	v.speed' = v.desired_speed'
-	-- frame
-	v.key_state' = v.key_state
-	v.brake_pressure' = v.brake_pressure
-}
-
-pred change_cruise_control_lever_four [ v : Vehicle ] {
-	-- pre
-	v.engine = On
-	v.cruise_control = CCOn
-	v.cruise_control_lever = Neutral
-	-- pos
-	v.engine' = On
-	v.cruise_control' = CCOff
+	v.cruise_control' = CruiseControlOff
 	v.cruise_control_lever' = Four
+	v.speed_desired' = Stopped
 	-- frame
-	v.desired_speed' = v.desired_speed
 	v.key_state' = v.key_state
-	speed_and_brake_dont_change [ v ]
+	speed_and_brake_dont_change[v]
 }
 
-pred rr_sensor_change_obstacle [ v : Vehicle ] {
+pred rr_sensor_change_obstacle_visual [v:Vehicle] {
 	-- pre
 	v.rr_state = Ready
-	v.visual_warning = VisualOff
 	v.rr_sensor = Clear
+	v.speed = Stopped
 	-- pos
 	v.rr_state' = Ready
 	v.rr_sensor' = Obstacle
-	v.visual_warning' = VisualOff
+	v.warning_visual' = VisualOn
+	v.speed' = Stopped
 	-- frame
-	v.acoustic_warning' = v.acoustic_warning
+	v.warning_acoustic' = v.warning_acoustic
 }
 
-pred rr_sensor_change_clear [ v : Vehicle ] {
+pred rr_sensor_change_clear_visual [v:Vehicle] {
 	-- pre
 	v.rr_state = Ready
 	v.rr_sensor = Obstacle
-	v.visual_warning = VisualOn
+	v.speed = Stopped
+	v.warning_visual = VisualOn
 	-- pos
 	v.rr_state' = Ready
 	v.rr_sensor' = Clear
-	v.visual_warning' = VisualOn
+	v.speed' = Stopped
+	v.warning_visual' = VisualOff
 	-- frame
-	v.acoustic_warning' = v.acoustic_warning
+	v.warning_acoustic' = v.warning_acoustic
 }
 
-pred visual_warning_on [ v : Vehicle ] {
+pred rr_sensor_change_obstacle_acoustic [v:Vehicle] {
 	-- pre
-	v.visual_warning = VisualOff
-	v.rr_sensor = Obstacle
-	-- pos
-	v.visual_warning' = VisualOn
-	v.rr_sensor' = Obstacle
-	-- frame
-	v.rr_state' = v.rr_state
-	v.acoustic_warning' = v.acoustic_warning
-}
-
-pred visual_warning_off [ v : Vehicle ] {
-	-- pre
-	v.visual_warning = VisualOn
+	v.rr_state = Ready
 	v.rr_sensor = Clear
+	v.speed = Normal
 	-- pos
-	v.visual_warning' = VisualOff
-	v.rr_sensor' = Clear
+	v.rr_state' = Ready
+	v.rr_sensor' = Obstacle
+	v.warning_acoustic' = AcousticOn
+	v.speed' = Normal
 	-- frame
-	v.rr_state' = v.rr_state
-	v.acoustic_warning' = v.acoustic_warning
+	v.warning_acoustic' = v.warning_acoustic
 }
 
-fact init {
-	all v : Vehicle | init [ v ]
+pred rr_sensor_change_clear_acoustic [v:Vehicle] {
+	-- pre
+	v.rr_state = Ready
+	v.rr_sensor = Obstacle
+	v.speed = Normal
+	v.warning_acoustic = AcousticOn
+	-- pos
+	v.rr_state' = Ready
+	v.rr_sensor' = Clear
+	v.speed' = Normal
+	v.warning_acoustic' = AcousticOff
+	-- frame
+	v.warning_visual' = v.warning_visual
+}
+
+fact initialize {
+	all v:Vehicle | init[v]
 }
 
 fact transitions {
-	always ( all v : Vehicle | insert_key [ v ] or turn_engine_on [ v ] or
-							speed_change_up [ v ] or
-							speed_change_down [ v ] or
-							change_cruise_control_lever_one [ v ] or
-							change_cruise_control_lever_two [ v ] or
-							change_cruise_control_lever_three [ v ] or
-							change_cruise_control_lever_four [ v ] or
-							cruise_control_lever_default_neutral [ v ] )
+	always ( all v:Vehicle | insert_key[v] or
+							turn_engine_on[v] or
+							speed_change_up[v] or
+							speed_change_down[v] or
+							change_cruise_control_lever_one [v] or
+							change_cruise_control_lever_two [v] or
+							change_cruise_control_lever_three [v] or
+							change_cruise_control_lever_four [v] or
+							change_cruise_control_lever_neutral [v] )
+							/*speed_change_cc_2 [v] or
+							speed_change_cc_3 [v] ) or
+							skip)*/
 }
 
-fact warning {
-	always ( all v : Vehicle | rr_sensor_change_obstacle [ v ] or
-							rr_sensor_change_clear [ v ] or
-							visual_warning_on [ v ] or
-							visual_warning_off [ v ] )
+fact sensors {
+	always ( all v:Vehicle | rr_sensor_change_obstacle_visual [v] or
+							rr_sensor_change_clear_visual [v] or
+							rr_sensor_change_obstacle_acoustic [v] or
+							rr_sensor_change_clear_acoustic [v] or
+							skip_2)
 }
 
-assert assert_engineon{
-	always ( all v : Vehicle | v.engine = On implies v.key_state = KeyInIgnitionOnPosition )
+fact always_ {
+	//always ( all v:Vehicle | not v.speed = v.speed_desired implies  v.speed' = v.speed_desired'  )
 }
-
-assert SCS1 {
-	all v : Vehicle | v.engine = On implies v.desired_speed = Stopped
-}
-
-assert SCS2 {
-	always ( all v : Vehicle | v.cruise_control_lever = One implies v.desired_speed = v.speed )
-}
-
-assert SCS4 {
-	always ( all v : Vehicle | v.cruise_control_lever = Two implies v.desired_speed' = v.desired_speed.S/next )
-}
-
-check SCS4 for 1 but exactly 1 Vehicle
 
 run {
-} for 1 but exactly 1 Vehicle
+	eventually (all v:Vehicle | v.speed = Normal)
+	eventually (all v:Vehicle | v.rr_sensor = Obstacle)
+}
+
+/** NOTAS:
+O predicado skip faz sentido pois o estado do veículo pode se manter inalterado entre estados mas
+para testes deixámos de fora para não termos que efetuar forks.
+**/
