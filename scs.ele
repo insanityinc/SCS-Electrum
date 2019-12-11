@@ -192,8 +192,8 @@ pred change_cruise_control_lever_two [ v : Vehicle ] {
 	v.cruise_control' = CCOn
 	v.cruise_control_lever' = Two
 	v.desired_speed' = v.desired_speed.S/next
-	v.speed' = v.desired_speed'
 	-- frame
+	v.speed' = v.speed
 	v.key_state' = v.key_state
 	v.brake_pressure' = v.brake_pressure
 }
@@ -300,6 +300,24 @@ fact warning {
 							visual_warning_on [ v ] or
 							visual_warning_off [ v ] )
 }
+
+assert assert_engineon{
+	always ( all v : Vehicle | v.engine = On implies v.key_state = KeyInIgnitionOnPosition )
+}
+
+assert SCS1 {
+	all v : Vehicle | v.engine = On implies v.desired_speed = Stopped
+}
+
+assert SCS2 {
+	always ( all v : Vehicle | v.cruise_control_lever = One implies v.desired_speed = v.speed )
+}
+
+assert SCS4 {
+	always ( all v : Vehicle | v.cruise_control_lever = Two implies v.desired_speed' = v.desired_speed.S/next )
+}
+
+check SCS4 for 1 but exactly 1 Vehicle
 
 run {
 } for 1 but exactly 1 Vehicle
