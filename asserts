@@ -1,0 +1,116 @@
+assert assert_engineon{
+	always ( all v : Vehicle | v.engine = On 
+					implies v.key_state = KeyInIgnitionOnPosition )
+}
+//check assert_engineon
+
+assert SCS1 {
+	all v : Vehicle | v.engine = On 
+			implies v.desired_speed = Stopped
+}
+//check SCS1 for 1 but exactly 1 Vehicle
+
+assert SCS2 {
+	always ( all v : Vehicle | v.cruise_control_lever = One 
+					implies v.desired_speed = v.speed )
+}
+//check SCS2
+
+assert SCS4 {
+	always ( all v : Vehicle | v.cruise_control_lever = Two 
+					implies v.desired_speed' = v.desired_speed.S/next )
+}
+//check SCS4
+
+//incompleto 
+assert SCS5{
+	always (all v : Vehicle | v.cruise_control_lever = Two 
+					implies  v.cruise_control' = CCOn)
+}
+//check SCS5
+
+/** incompleto
+assert SCS6{
+	always (all v : Vehicle | v.cruise_control_lever = Three implies  v.desired_speed' = v.desired_speed.S/prev)	
+}
+check SCS6
+**/
+
+//incompleto??
+assert SCS7{
+	always ( all v : Vehicle | v.cruise_control_lever = Two and v.cruise_control = CCOn 
+					implies  v.cruise_control_lever' = Neutral )
+}
+//check SCS7
+
+//se estiver imcompleto fica também igual à 7 
+assert SCS8{
+	always ( all v : Vehicle | v.cruise_control_lever = Two and v.cruise_control = CCOn 
+					implies  v.cruise_control_lever' = Neutral )
+}
+//check SCS8
+
+//incompleto
+assert SCS9{
+	always ( all v : Vehicle | v.cruise_control_lever = Three and v.cruise_control = CCOn  
+					implies  v.cruise_control_lever' = Neutral )
+}
+//check SCS9
+
+//incompleto
+assert SCS10{
+	always ( all v : Vehicle | v.cruise_control_lever = Three and v.cruise_control = CCOn  
+					implies  v.cruise_control_lever' = Neutral )
+}
+//check SCS10
+
+assert SCS11{
+	always ( all v : Vehicle | (v.cruise_control_lever = Three or v.cruise_control_lever = Two) and 
+				v.cruise_control = CCOff
+					implies v.speed' = v.desired_speed )	
+}
+//check SCS11
+
+assert SCS12{
+	always ( all v : Vehicle | v.cruise_control = CCOn and v.cruise_control_lever = Four implies v.cruise_control' = CCOff )
+}
+//check SCS12
+
+assert SCS13 {
+	always ( all v : Vehicle | v.cruise_control_lever = One and v.cruise_control = CCOff implies v.cruise_control' = CCOn)
+}
+//check SCS13 for 1 but exactly 1 Vehicle
+
+/*incompleto (a tal cena que o lucas andava a ver)
+assert SCS14{
+	always( all v : Vehicle | v.cruise_control_lever = Neutral and v.cruise_control = CCOn and v.brake_pressure = Zero implies v.speed = v.desired_speed )
+}
+check SCS14 for 1 but exactly 1 Vehicle
+*/
+
+/*assert SCS15{
+	
+}
+check SCS15 for 1 but exactly 1 Vehicle*/
+
+/*assert SCS16{
+	
+}
+check SCS16 for 1 but exactly 1 Vehicle*/
+
+assert SCS17{
+	always ( all v : Vehicle | v.cruise_control_lever = Four implies v.cruise_control = CCOff)	
+}
+//check SCS17 for 1 but exactly 1 Vehicle
+
+//incompleto
+assert SCS25{
+	always ( all v : Vehicle | v.speed = Stopped implies v.visual_warning = VisualOn )
+}
+//check SCS25 for 1 but exactly 1 Vehicle
+
+//incompleto
+assert SCS26{
+	always ( all v : Vehicle | v.speed = Normal implies v.acoustic_warning = AcousticOn)
+}
+//check SCS26 for 1 but exactly 1 Vehicle
